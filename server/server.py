@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import pickledb
 app = FastAPI()
 
-db = pickledb.load('kanban.db', True) 
+db = pickledb.load('./data/kanban.db', True) 
 print(list(db.getall()))
 if ("To Do" not in list(db.getall())):
     print("Creating To Do")
