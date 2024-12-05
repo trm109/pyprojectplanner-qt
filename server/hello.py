@@ -5,9 +5,16 @@ import pickledb
 app = FastAPI()
 
 db = pickledb.load('kanban.db', True) 
-db.lcreate('To Do')
-db.lcreate('In Progress')
-db.lcreate('Done')
+print(list(db.getall()))
+if ("To Do" not in list(db.getall())):
+    print("Creating To Do")
+    db.lcreate('To Do')
+if ("In Progress" not in list(db.getall())):
+    print("Creating In Progress")
+    db.lcreate('In Progress')
+if ("Done" not in list(db.getall())):
+    print("Creating Done")
+    db.lcreate('Done')
 tablemap = {
     0: 'To Do',
     1: 'In Progress',
@@ -64,6 +71,7 @@ def edit_task(input: TaskEditInput):
         if input.task_name_old in db.lgetall(table):
             db.lremvalue(table, input.task_name_old)
             db.ladd(table, input.task_name_new)
+            db.dump()
             return { "success": "Task edited" }
 
 ## Delete
@@ -73,6 +81,7 @@ def delete_task(input: TaskDeleteInput):
     for table in tablemap.values():
         if input.task_name in db.lgetall(table):
             db.lremvalue(table, input.task_name)
+            db.dump()
             return { "success": "Task deleted" }
 
     # Task not found
@@ -92,4 +101,6 @@ def move_task(input: TaskMoveInput):
     # Add task to new table
     if create_task(TaskCreateInput(table_id=input.table_to, task_name=input.task_name)) == { "error": "Task already exists" }:
         return { "error": "Task already exists" }
+
+    db.dump()
     return { "success": "Task moved" }
